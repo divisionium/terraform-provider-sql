@@ -22,3 +22,10 @@ provider "sql" {
   alias = "mysql"
   url   = "mysql://root:password@tcp(localhost:3306)/mysql"
 }
+
+# mark the provider as disabled so that it will not try to connect
+provider "sql" {
+  alias    = "postgres"
+  url      = "postgres://postgres:password@localhost:5432/mydatabase?sslmode=disable"
+  disabled = true
+}

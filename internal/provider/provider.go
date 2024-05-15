@@ -72,6 +72,13 @@ func (p *provider) Schema(context.Context) *tfprotov6.Schema {
 					DescriptionKind: tfprotov6.StringKindMarkdown,
 					Type:            tftypes.Number,
 				},
+				{
+					Name:            "disabled",
+					Optional:        true,
+					Description:     "Can be used to prevent the initialization on resources that are not ready. Default is `false`. ",
+					DescriptionKind: tfprotov6.StringKindMarkdown,
+					Type:            tftypes.Bool,
+				},
 			},
 		},
 	}
@@ -93,7 +100,24 @@ func (p *provider) Configure(ctx context.Context, config map[string]tftypes.Valu
 		url          string
 		maxOpenConns *big.Float
 		maxIdleConns *big.Float
+		disabled     bool
 	)
+
+	if v := config["disabled"]; v.IsNull() {
+		disabled = false
+	} else {
+		err = config["disabled"].As(&disabled)
+		if err != nil {
+			// TODO: diag with path
+			return nil, fmt.Errorf("ConfigureProvider - unable to read disabled: %w", err)
+		}
+	}
+
+	// If the provider is disabled, do not connect to the database
+	if disabled {
+		return nil, nil
+	}
+
 	if v := config["url"]; v.IsNull() {
 		url = os.Getenv("SQL_URL")
 	} else {
