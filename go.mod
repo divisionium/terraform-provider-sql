@@ -1,4 +1,4 @@
-module github.com/paultyng/terraform-provider-sql
+module github.com/divisionium/terraform-provider-sql
 
 go 1.19
 
